@@ -58,11 +58,12 @@ const schema = {
         type:"object",
         additionalProperties:false,
         properties:{
-          phrase:{type:"string"},
+          source_phrase:{type:"string"},
+          phrase_frame:{type:"string"},
           meaning:{type:"string"},
           use_when:{type:"string"}
         },
-        required:["phrase","meaning","use_when"]
+        required:["source_phrase","phrase_frame","meaning","use_when"]
       }
     },
     practice_prompt:{type:"string"},
@@ -82,7 +83,8 @@ CONTENT FORMAT: 1-to-1 Conversation
 - Exactly 2 speakers.
 - 6–8 short turns total.
 - The exchange must contain a real communication problem or objective.
-- Return exactly 3 useful transferable phrases that appear VERBATIM in the dialogue.
+- Return exactly 3 useful transferable source phrases that appear VERBATIM in the dialogue.
+- For each source phrase, also create a reusable phrase_frame using the single ellipsis character “…” to replace situation-specific words. The frame must still sound natural when the viewer inserts their own context.
 - interview_question, weak_answer, better_answer must be empty strings.
 - mistakes must be an empty array.
 `;
@@ -93,7 +95,8 @@ CONTENT FORMAT: Meeting Conversation
 - 2 or 3 speakers maximum.
 - 8–10 concise turns.
 - There must be one real meeting purpose: clarification, disagreement, decision, recommendation, objection, or trade-off.
-- Return exactly 4 useful transferable phrases that appear VERBATIM in the dialogue.
+- Return exactly 4 useful transferable source phrases that appear VERBATIM in the dialogue.
+- For each source phrase, also create a reusable phrase_frame using the single ellipsis character “…” to replace situation-specific words. The frame must still sound natural when the viewer inserts their own context.
 - interview_question, weak_answer, better_answer must be empty strings.
 - mistakes must be an empty array.
 `;
@@ -106,7 +109,8 @@ CONTENT FORMAT: Interview
 - Provide one clearly better answer that is concise and believable, not perfect or over-polished.
 - dialogue_lines must be an empty array.
 - mistakes must be an empty array.
-- Return exactly 3 useful transferable phrases that appear VERBATIM in the better answer.
+- Return exactly 3 useful transferable source phrases that appear VERBATIM in the better answer.
+- For each source phrase, also create a reusable phrase_frame using the single ellipsis character “…” to replace situation-specific words. The frame must still sound natural when the viewer inserts their own context.
 `;
   }
   return `
@@ -117,7 +121,8 @@ CONTENT FORMAT: Common Mistakes
 - Each item needs DON'T, why it may not work, DO, and 2 short alternatives.
 - dialogue_lines must be an empty array.
 - interview_question, weak_answer, better_answer must be empty strings.
-- Return exactly 3 useful transferable phrases that appear VERBATIM in the DO examples or alternatives.
+- Return exactly 3 useful transferable source phrases that appear VERBATIM in the DO examples or alternatives.
+- For each source phrase, also create a reusable phrase_frame using the single ellipsis character “…” to replace situation-specific words. The frame must still sound natural when the viewer inserts their own context.
 `;
 }
 
@@ -182,7 +187,10 @@ NON-NEGOTIABLE AXCELA RULES
 - Do not overuse business buzzwords.
 - Do not use slang unless the context genuinely requires it.
 - If the communication goal involves disagreement, persuasion, defence or feedback, show a realistic amount of tension.
-- Highlight phrases are not decorative: each phrase must have a clear communication function.
+- Highlight phrases are not decorative: each source_phrase must have a clear communication function.
+- source_phrase is the exact full wording used in the generated content and is used only for highlighting in context.
+- phrase_frame is the learner-facing takeaway pattern. It MUST contain “…” wherever the viewer should insert or replace their own context.
+- Do not simply repeat the full source sentence as phrase_frame.
 - creator_note_vi is for Axcela's content team, not the learner. Write it in natural Vietnamese, maximum 2 short sentences, explaining why this scenario/phrasing is useful or what tone nuance matters.
 
 LEVEL CONTROL
@@ -190,13 +198,25 @@ ${languageRules(cefr)}
 
 ${rulesForType(type)}
 
+PHRASE FRAME EXAMPLES
+- source_phrase: "Could the new blog traffic be less relevant?"
+  phrase_frame: "Could … be less relevant?"
+- source_phrase: "Let's look at the landing-page data before we change the campaign."
+  phrase_frame: "Let's look at … before we …"
+- source_phrase: "So the issue may be visibility, not page quality."
+  phrase_frame: "So the issue may be …, not …"
+- source_phrase: "Can we update those titles this week and review the numbers next Friday?"
+  phrase_frame: "Can we … this week and review … next …?"
+
 OUTPUT RULES
 - title: short, TikTok-friendly, specific.
 - hook: one short opening line that creates a recognisable problem. No clickbait.
 - situation: 1–2 concise sentences.
+- key_phrases source_phrase: exact full sentence/chunk appearing in the generated content.
+- key_phrases phrase_frame: reusable pattern containing “…” placeholders for context-specific details. Keep only the stable communication structure.
 - key_phrases meaning: brief plain English meaning.
 - key_phrases use_when: one short practical usage note.
-- practice_prompt: tell the viewer to replace one detail with their own situation and say it aloud.
+- practice_prompt: explicitly tell the viewer to replace “…” with their own situation and say the phrase patterns aloud.
 `;
 
     const response=await fetch("https://api.openai.com/v1/responses",{
