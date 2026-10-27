@@ -17,6 +17,28 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 .phrases{display:grid;gap:7px}.phrase{display:grid;grid-template-columns:minmax(145px,.8fr) 1.2fr;gap:9px;background:#F8FAFC;border-radius:12px;padding:9px}.phrase strong{font-size:11px;color:var(--green)}.phrase div{font-size:10.5px;color:#53647E;line-height:1.4}.phrase em{display:block;font-size:9.5px;color:#8490A3;font-style:normal;margin-top:2px}
 .mistake{border-top:1px solid #EDF1F5;padding:10px 0}.mistake:first-of-type{border-top:0;padding-top:2px}.bad{background:#FFF3F2;color:#8E2E26;border-radius:10px;padding:8px;font-size:11.5px;margin:4px 0}.good{background:#EEF9F4;color:#256447;border-radius:10px;padding:8px;font-size:11.5px;margin:4px 0}.reason{font-size:10.5px;color:#66758D;line-height:1.4;margin:4px 0}.alt{font-size:10px;color:#4A5E7C}
 .interview-box{background:#F7FAFC;border-radius:12px;padding:10px;margin:7px 0}.interview-box strong{display:block;font-size:9.5px;color:#7A879C;text-transform:uppercase;margin-bottom:4px}.interview-box div{font-size:11.5px;line-height:1.45}.creator-note{background:#F4FBF7;border:1px solid #D7EDE2;border-radius:14px;padding:10px 11px;font-size:10.5px;line-height:1.45;color:#4E675E}.practice{background:#F0F6FF;border-radius:12px;padding:10px 11px;font-size:11px;line-height:1.45;color:#35577E}.error{border:1px solid #F0C7C4;background:#FFF7F6;color:var(--danger);padding:12px;border-radius:14px;font-size:11px;line-height:1.45}.edit-area{display:none;margin-top:8px}.edit-area textarea{min-height:240px;font-size:11px;line-height:1.45}
+
+.copy-row{display:flex;align-items:flex-start;gap:8px}.copy-row .copy-content{flex:1;min-width:0}.copy-icon{flex:0 0 auto;width:27px;height:27px;border:1px solid #D2DDE8;background:#fff;border-radius:8px;display:inline-grid;place-items:center;color:#6C7A91;padding:0}.copy-icon:hover{border-color:#9AB5A7;color:var(--green);background:#F4FBF7}.copy-icon.copied{border-color:#9DD4BC;color:var(--green);background:var(--mint)}.copy-icon svg{width:13px;height:13px}.phrase{grid-template-columns:minmax(145px,.8fr) 1.2fr auto;align-items:start}.alt-list{display:grid;gap:4px;margin-top:5px}.alt-item{display:flex;align-items:center;gap:6px}.alt-item span{flex:1}
+
+.inline-actions{display:flex;gap:5px;align-items:center;flex:0 0 auto}
+.icon-btn{width:27px;height:27px;border:1px solid #D2DDE8;background:#fff;border-radius:8px;display:inline-grid;place-items:center;color:#6C7A91;padding:0}
+.icon-btn:hover{border-color:#9AB5A7;color:var(--green);background:#F4FBF7}
+.icon-btn.copied{border-color:#9DD4BC;color:var(--green);background:var(--mint)}
+.icon-btn.busy{opacity:.55;cursor:wait}
+.icon-btn.playing{border-color:#8FCDB1;color:var(--green);background:var(--mint)}
+.icon-btn svg{width:13px;height:13px}
+.audio-disclosure{margin-top:8px;font-size:9px;line-height:1.35;color:#8793A6;text-align:center}
+.micro-note{font-size:9.5px;color:#8490A3;line-height:1.35;margin-top:5px}
+.mini-situation{border:1px solid #E2E9F0;border-radius:14px;padding:10px;margin-top:8px;background:#FBFCFE}
+.mini-situation h4{margin:0 0 3px;font-size:11.5px;color:var(--navy)}
+.mini-context{font-size:10px;color:#6D7C92;line-height:1.4;margin-bottom:7px}
+.phrase{grid-template-columns:minmax(145px,.85fr) 1.1fr auto;align-items:start}
+.phrase-main{display:grid;gap:4px}
+.phrase-type{font-size:8.5px;text-transform:uppercase;letter-spacing:.6px;color:#8290A5;font-weight:850}
+.example-wrap{margin-top:7px;padding-top:7px;border-top:1px solid #E8EEF4}
+.example-label{font-size:8.5px;text-transform:uppercase;letter-spacing:.55px;color:#7B879A;font-weight:850;margin-bottom:3px}
+.example-line{font-size:10.5px;color:#3D5272;line-height:1.4}
+
 @media(max-width:880px){body{padding:0}.topbar{padding:14px 14px 0}.layout{display:block}.builder{position:static;border-radius:0}.output{border-radius:0;box-shadow:none}}
 </style>
 </head>
@@ -25,29 +47,34 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 <div class="topbar"><div class="brand"><div class="logo">A</div><div><strong>Axcela Content Engine</strong><span>Internal TikTok Content Generator</span></div></div><div class="badge">Controlled by Axcela</div></div>
 <div class="layout">
 <section class="card builder">
-<div class="eyebrow">Content brief</div><h1>Build a practical communication script</h1>
-<p class="intro">Define who, where, what they need to do, difficulty and format. AI fills Axcela’s fixed content structure.</p>
+<div class="eyebrow">Content brief</div><h1>Build practical workplace content</h1>
+<p class="intro">Enter the brief in English or Vietnamese. Choose a scenario format or a language focus; Axcela keeps the output controlled and practical.</p>
 
-<div class="field"><label>Job function</label><input id="jobFunction" list="jobs" value="Sales" placeholder="e.g. Sales, HR, IT, Engineering">
+<div class="field"><label>Job function / Vị trí công việc <span>EN hoặc VI</span></label><input id="jobFunction" list="jobs" value="Sales" placeholder="e.g. Sales / Kinh doanh / Nhân sự / IT">
 <datalist id="jobs"><option>Sales</option><option>Human Resources</option><option>Marketing</option><option>IT</option><option>Engineering</option><option>Finance</option><option>Customer Service</option><option>Operations</option><option>Management</option><option>Project Management</option><option>Procurement</option><option>Learning & Development</option></datalist></div>
 
-<div class="field"><label>Context</label><input id="context" list="contexts" value="Client meeting" placeholder="e.g. Meeting, interview, presentation">
+<div class="field"><label>Context / Bối cảnh <span>EN hoặc VI</span></label><input id="context" list="contexts" value="Client meeting" placeholder="e.g. Client meeting / Họp với khách hàng">
 <datalist id="contexts"><option>Client meeting</option><option>Internal meeting</option><option>Job interview</option><option>Presentation</option><option>Performance review</option><option>Project update</option><option>Negotiation</option><option>Problem-solving discussion</option><option>Cross-functional discussion</option><option>1-to-1 conversation</option></datalist></div>
 
-<div class="field"><label>Communication goal</label><input id="goal" list="goals" value="Convince a client" placeholder="e.g. Clarify, disagree, explain, persuade">
+<div class="field"><label>Communication goal / Mục tiêu giao tiếp <span>EN hoặc VI</span></label><input id="goal" list="goals" value="Convince a client" placeholder="e.g. Clarify / Giải thích / Thuyết phục / Phản biện">
 <datalist id="goals"><option>Convince a client</option><option>Clarify a point</option><option>Disagree politely</option><option>Explain an idea</option><option>Defend an idea</option><option>Give feedback</option><option>Ask for clarification</option><option>Negotiate</option><option>Handle an objection</option><option>Present a recommendation</option><option>Explain a problem</option><option>Ask for support</option></datalist></div>
 
-<div class="field"><label>Level <span>Mapped to CEFR</span></label><select id="level"><option value="Elementary">Elementary (A1)</option><option value="Pre-Intermediate">Pre-Intermediate (A2)</option><option value="Intermediate" selected>Intermediate (B1)</option><option value="Upper-Intermediate">Upper-Intermediate (B2)</option><option value="Advanced">Advanced (C1)</option></select></div>
+<div class="field"><label>Level / Trình độ <span>Mapped to CEFR</span></label><select id="level"><option value="Elementary">Elementary (A1)</option><option value="Pre-Intermediate">Pre-Intermediate (A2)</option><option value="Intermediate" selected>Intermediate (B1)</option><option value="Upper-Intermediate">Upper-Intermediate (B2)</option><option value="Advanced">Advanced (C1)</option></select></div>
 
-<div class="field"><label>Content type</label><div class="type-grid">
+<div class="field"><label>Voice accent / Giọng đọc <span>Native conversational pace</span></label><select id="accent"><option value="american" selected>American English</option><option value="british">British English</option></select><div class="micro-note">Level changes language complexity, not speaking speed. Audio always uses normal native conversational pace.</div></div>
+
+<div class="field"><label>Content type / Dạng nội dung</label><div class="type-grid">
 <button class="type-btn active" data-type="one_to_one">1-to-1 Conversation<small>Two-person practical exchange</small></button>
 <button class="type-btn" data-type="meeting">Meeting Conversation<small>Up to three participants</small></button>
 <button class="type-btn" data-type="interview">Interview<small>Question + weak vs better answer</small></button>
 <button class="type-btn" data-type="common_mistakes">Common Mistakes<small>Do / Don’t for context & tone</small></button>
+<button class="type-btn" data-type="useful_vocab">Useful Vocabulary<small>1 item · 2 short situations</small></button>
+<button class="type-btn" data-type="phrasal_verb">Phrasal Verbs<small>1 item · 2 short situations</small></button>
+<button class="type-btn" data-type="idiom">Idioms<small>Common workplace idiom · 2 situations</small></button>
 </div></div>
 
 <button class="generate" id="generateBtn">Generate content</button>
-<div class="builder-note">Axcela sets the format and language level. AI generates only inside those rules.</div>
+<div class="builder-note">Nhập brief bằng tiếng Việt hoặc English. Learning content luôn bằng English; Creator Note bằng tiếng Việt.</div>
 </section>
 
 <section class="card output" id="output"><div class="empty"><div><div class="empty-icon">✦</div><strong>Your content draft will appear here</strong><div>Useful phrases will be highlighted in context and turned into reusable patterns.</div></div></div></section>
@@ -55,32 +82,266 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 
 <script>
 const state={contentType:"one_to_one",lastResult:null};
-document.querySelectorAll("[data-type]").forEach(btn=>btn.addEventListener("click",()=>{document.querySelectorAll("[data-type]").forEach(x=>x.classList.remove("active"));btn.classList.add("active");state.contentType=btn.dataset.type;}));
 const output=document.getElementById("output"),generateBtn=document.getElementById("generateBtn");
+const audioCache=new Map();
+let currentAudio=null;
+
+document.querySelectorAll("[data-type]").forEach(btn=>btn.addEventListener("click",()=>{
+  document.querySelectorAll("[data-type]").forEach(x=>x.classList.remove("active"));
+  btn.classList.add("active");
+  state.contentType=btn.dataset.type;
+}));
+
 function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-function highlight(text,phrases){let html=esc(text);const sorted=[...(phrases||[])].filter(Boolean).sort((a,b)=>b.length-a.length);for(const phrase of sorted){const e=esc(phrase);html=html.split(e).join("<mark>"+e+"</mark>");}return html;}
-function renderLoading(){output.innerHTML='<div class="loading"><div><strong>Generating Axcela content...</strong><div>Keeping the scenario practical, level-appropriate and reusable.</div><div class="dots"><span></span><span></span><span></span></div></div></div>';}
+function highlight(text,phrases){
+  let html=esc(text);
+  const sorted=[...(phrases||[])].filter(Boolean).sort((a,b)=>b.length-a.length);
+  for(const phrase of sorted){
+    const e=esc(phrase);
+    html=html.split(e).join("<mark>"+e+"</mark>");
+  }
+  return html;
+}
+function renderLoading(){output.innerHTML='<div class="loading"><div><strong>Generating Axcela content...</strong><div>Selecting transferable language first, then building the context around it.</div><div class="dots"><span></span><span></span><span></span></div></div></div>';}
 function renderError(message){output.innerHTML='<div class="error">'+esc(message)+'</div>';}
-function fullText(r){let p=[r.title,"HOOK: "+r.hook,"SITUATION: "+r.situation];if(r.dialogue_lines?.length){p.push("SCRIPT:");r.dialogue_lines.forEach(x=>p.push(x.speaker+": "+x.text));}if(r.interview_question){p.push("INTERVIEW QUESTION: "+r.interview_question,"WEAK ANSWER: "+r.weak_answer,"BETTER ANSWER: "+r.better_answer);}if(r.mistakes?.length){p.push("COMMON MISTAKES:");r.mistakes.forEach((x,i)=>{p.push((i+1)+". DON'T: "+x.dont,"WHY: "+x.why,"DO: "+x.do);if(x.alternatives?.length)p.push("ALTERNATIVES: "+x.alternatives.join(" | "));});}p.push("USEFUL PHRASES:");(r.key_phrases||[]).forEach(x=>p.push("- "+x.phrase_frame+" — "+x.meaning+" ("+x.use_when+")"));p.push("PRACTICE: "+r.practice_prompt,"CREATOR NOTE: "+r.creator_note_vi);return p.join("\n\n");}
-async function copyText(text,button){try{await navigator.clipboard.writeText(text);const old=button.textContent;button.textContent="Copied ✓";setTimeout(()=>button.textContent=old,1200);}catch(e){alert("Copy failed. Please select the text manually.");}}
+
+function iconCopy(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="11" height="11" rx="2"></rect><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"></path></svg>';
+}
+function iconPlay(){
+  return '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"></path></svg>';
+}
+function iconDownload(){
+  return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"></path><path d="m7 10 5 5 5-5"></path><path d="M5 21h14"></path></svg>';
+}
+
+function copyButton(text,label="Copy"){
+  return '<button class="icon-btn" data-copy="'+encodeURIComponent(text||"")+'" aria-label="'+esc(label)+'" title="'+esc(label)+'">'+iconCopy()+'</button>';
+}
+function playButton(text,voice="marin"){
+  return '<button class="icon-btn" data-play="'+encodeURIComponent(text||"")+'" data-voice="'+esc(voice)+'" aria-label="Listen" title="Listen">'+iconPlay()+'</button>';
+}
+function downloadButton(text,voice="marin"){
+  return '<button class="icon-btn" data-download="'+encodeURIComponent(text||"")+'" data-voice="'+esc(voice)+'" aria-label="Download audio" title="Download audio">'+iconDownload()+'</button>';
+}
+function rowActions(text,voice="marin",audio=true){
+  return '<div class="inline-actions">'+copyButton(text)+(audio?playButton(text,voice)+downloadButton(text,voice):'')+'</div>';
+}
+function contentRow(contentHtml,text,voice="marin",audio=true,extraClass=""){
+  return '<div class="copy-row '+extraClass+'"><div class="copy-content">'+contentHtml+'</div>'+rowActions(text,voice,audio)+'</div>';
+}
+
+async function copyText(text,button){
+  try{
+    await navigator.clipboard.writeText(text);
+    if(button){
+      button.classList.add("copied");
+      const old=button.title||"Copy";
+      button.title="Copied ✓";
+      setTimeout(()=>{button.classList.remove("copied");button.title=old},1000);
+    }
+  }catch(e){alert("Copy failed. Please select the text manually.");}
+}
+
+function audioKey(text,voice){
+  const accent=document.getElementById("accent")?.value||"american";
+  return accent+"|"+voice+"|"+text;
+}
+async function getAudio(text,voice,button){
+  const key=audioKey(text,voice);
+  if(audioCache.has(key)) return audioCache.get(key);
+
+  if(button)button.classList.add("busy");
+  const accent=document.getElementById("accent")?.value||"american";
+  const response=await fetch("/.netlify/functions/voice",{
+    method:"POST",
+    headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({text,voice,accent})
+  });
+  if(!response.ok){
+    const data=await response.json().catch(()=>({}));
+    throw new Error(data.error||"Could not generate audio.");
+  }
+  const blob=await response.blob();
+  const url=URL.createObjectURL(blob);
+  const item={blob,url};
+  audioCache.set(key,item);
+  if(button)button.classList.remove("busy");
+  return item;
+}
+async function playAudio(text,voice,button){
+  try{
+    const item=await getAudio(text,voice,button);
+    if(currentAudio){currentAudio.pause();currentAudio=null;}
+    const audio=new Audio(item.url);
+    currentAudio=audio;
+    button?.classList.add("playing");
+    audio.onended=()=>{button?.classList.remove("playing");if(currentAudio===audio)currentAudio=null;};
+    audio.onerror=()=>button?.classList.remove("playing");
+    await audio.play();
+  }catch(e){button?.classList.remove("busy");alert(e.message);}
+}
+function safeFilename(text){
+  const slug=String(text||"audio").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,45)||"audio";
+  return "axcela-"+slug+".mp3";
+}
+async function downloadAudio(text,voice,button){
+  try{
+    const item=await getAudio(text,voice,button);
+    const a=document.createElement("a");
+    a.href=item.url;
+    a.download=safeFilename(text);
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+  }catch(e){button?.classList.remove("busy");alert(e.message);}
+}
+function bindActionButtons(){
+  output.querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("click",()=>copyText(decodeURIComponent(btn.dataset.copy||""),btn)));
+  output.querySelectorAll("[data-play]").forEach(btn=>btn.addEventListener("click",()=>playAudio(decodeURIComponent(btn.dataset.play||""),btn.dataset.voice||"marin",btn)));
+  output.querySelectorAll("[data-download]").forEach(btn=>btn.addEventListener("click",()=>downloadAudio(decodeURIComponent(btn.dataset.download||""),btn.dataset.voice||"marin",btn)));
+}
+
+function fullText(r){
+  let p=[r.title,"HOOK: "+r.hook,"SITUATION: "+r.situation];
+  if(r.dialogue_lines?.length){
+    p.push("SCRIPT:");
+    r.dialogue_lines.forEach(x=>p.push(x.speaker+": "+x.text));
+  }
+  if(r.mini_situations?.length){
+    r.mini_situations.forEach((s,i)=>{
+      p.push("SITUATION "+(i+1)+": "+s.title+" — "+s.situation);
+      s.dialogue_lines.forEach(x=>p.push(x.speaker+": "+x.text));
+    });
+  }
+  if(r.interview_question){
+    p.push("INTERVIEW QUESTION: "+r.interview_question,"WEAK ANSWER: "+r.weak_answer,"BETTER ANSWER: "+r.better_answer);
+  }
+  if(r.mistakes?.length){
+    p.push("COMMON MISTAKES:");
+    r.mistakes.forEach((x,i)=>{
+      p.push((i+1)+". DON'T: "+x.dont,"WHY: "+x.why,"DO: "+x.do);
+      if(x.alternatives?.length)p.push("ALTERNATIVES: "+x.alternatives.join(" | "));
+    });
+  }
+  p.push("LANGUAGE TAKEAWAYS:");
+  (r.key_phrases||[]).forEach(x=>{
+    p.push("- "+x.phrase_frame+" — "+x.meaning+" ("+x.use_when+")");
+    p.push("  ANOTHER WORKPLACE EXAMPLE: "+x.another_workplace_example);
+  });
+  p.push("PRACTICE: "+r.practice_prompt,"CREATOR NOTE: "+r.creator_note_vi);
+  return p.join("\n\n");
+}
+
 function renderResult(r){
- state.lastResult=r;const phrases=(r.key_phrases||[]).map(x=>x.source_phrase);
- let scriptHtml="";if(r.dialogue_lines?.length){scriptHtml='<div class="panel"><h3>Script</h3><div class="dialogue">'+r.dialogue_lines.map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div><div class="line-text">'+highlight(x.text,phrases)+'</div></div>').join("")+'</div></div>';}
- let interviewHtml="";if(r.interview_question){interviewHtml='<div class="panel"><h3>Interview format</h3><div class="interview-box"><strong>Question</strong><div>'+esc(r.interview_question)+'</div></div><div class="interview-box"><strong>Weak answer</strong><div>'+esc(r.weak_answer)+'</div></div><div class="interview-box"><strong>Better answer</strong><div>'+highlight(r.better_answer,phrases)+'</div></div></div>';}
- let mistakesHtml="";if(r.mistakes?.length){mistakesHtml='<div class="panel"><h3>Do & Don’t</h3>'+r.mistakes.map(x=>'<div class="mistake"><div class="bad"><strong>DON’T:</strong> '+esc(x.dont)+'</div><div class="reason">'+esc(x.why)+'</div><div class="good"><strong>DO:</strong> '+highlight(x.do,phrases)+'</div><div class="alt"><strong>Alternatives:</strong> '+esc((x.alternatives||[]).join(" · "))+'</div></div>').join("")+'</div>';}
- const phraseHtml='<div class="panel"><h3>Useful phrase patterns</h3><div class="phrases">'+(r.key_phrases||[]).map(x=>'<div class="phrase"><strong>'+esc(x.phrase_frame)+'</strong><div>'+esc(x.meaning)+'<em>'+esc(x.use_when)+'</em></div></div>').join("")+'</div></div>';
- output.innerHTML='<div class="result-head"><div><div class="eyebrow">'+esc(r.content_type_label)+'</div><h2>'+esc(r.title)+'</h2><div class="result-meta">'+esc(r.level_label)+' · '+esc(r.job_function)+' · '+esc(r.context)+'</div></div><div class="actions"><button class="action" id="editBtn">Edit text</button><button class="action primary" id="copyBtn">Copy full script</button></div></div><div class="panel"><h3>Hook</h3><div class="hook">'+esc(r.hook)+'</div></div><div class="panel"><h3>Situation</h3><div class="situation">'+esc(r.situation)+'</div></div>'+scriptHtml+interviewHtml+mistakesHtml+phraseHtml+'<div class="panel"><h3>Practice prompt</h3><div class="practice">'+esc(r.practice_prompt)+'</div></div><div class="creator-note"><strong>Creator note:</strong> '+esc(r.creator_note_vi)+'</div><div class="edit-area" id="editArea"><textarea id="editText"></textarea><div class="actions" style="margin-top:7px"><button class="action" id="closeEdit">Close</button><button class="action primary" id="copyEdited">Copy edited text</button></div></div>';
- document.getElementById("copyBtn").onclick=e=>copyText(fullText(r),e.currentTarget);
- document.getElementById("editBtn").onclick=()=>{const area=document.getElementById("editArea");area.style.display=area.style.display==="block"?"none":"block";document.getElementById("editText").value=fullText(r);};
- document.getElementById("closeEdit").onclick=()=>document.getElementById("editArea").style.display="none";
- document.getElementById("copyEdited").onclick=e=>copyText(document.getElementById("editText").value,e.currentTarget);
+  state.lastResult=r;
+  const phrases=(r.key_phrases||[]).map(x=>x.source_phrase).filter(Boolean);
+  const speakerVoices=new Map();
+  const voices=["marin","cedar","sage"];
+  function voiceFor(speaker){
+    const key=String(speaker||"speaker");
+    if(!speakerVoices.has(key))speakerVoices.set(key,voices[speakerVoices.size%voices.length]);
+    return speakerVoices.get(key);
+  }
+
+  let scriptHtml="";
+  if(r.dialogue_lines?.length){
+    scriptHtml='<div class="panel"><h3>Script</h3><div class="dialogue">'+
+      r.dialogue_lines.map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
+      '</div></div>';
+  }
+
+  let miniHtml="";
+  if(r.mini_situations?.length){
+    miniHtml='<div class="panel"><h3>Two workplace situations</h3>'+
+      r.mini_situations.map((s,i)=>'<div class="mini-situation"><h4>Situation '+(i+1)+' — '+esc(s.title)+'</h4><div class="mini-context">'+esc(s.situation)+'</div><div class="dialogue">'+
+        (s.dialogue_lines||[]).map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
+      '</div></div>').join("")+'</div>';
+  }
+
+  let interviewHtml="";
+  if(r.interview_question){
+    interviewHtml='<div class="panel"><h3>Interview format</h3>'+
+      '<div class="interview-box"><strong>Question</strong>'+contentRow('<div>'+esc(r.interview_question)+'</div>',r.interview_question,"cedar",true)+'</div>'+
+      '<div class="interview-box"><strong>Weak answer</strong>'+contentRow('<div>'+esc(r.weak_answer)+'</div>',r.weak_answer,"marin",true)+'</div>'+
+      '<div class="interview-box"><strong>Better answer</strong>'+contentRow('<div>'+highlight(r.better_answer,phrases)+'</div>',r.better_answer,"marin",true)+'</div>'+
+      '</div>';
+  }
+
+  let mistakesHtml="";
+  if(r.mistakes?.length){
+    mistakesHtml='<div class="panel"><h3>Do & Don’t</h3>'+
+      r.mistakes.map(x=>'<div class="mistake">'+
+        contentRow('<div class="bad"><strong>DON’T:</strong> '+esc(x.dont)+'</div>',x.dont,"marin",true)+
+        '<div class="reason">'+esc(x.why)+'</div>'+
+        contentRow('<div class="good"><strong>DO:</strong> '+highlight(x.do,phrases)+'</div>',x.do,"marin",true)+
+        (x.alternatives?.length?'<div class="alt-list">'+x.alternatives.map(a=>'<div class="alt-item"><span>'+esc(a)+'</span>'+rowActions(a,"cedar",true)+'</div>').join("")+'</div>':'')+
+      '</div>').join("")+'</div>';
+  }
+
+  const languageHeading=r.is_language_based
+    ? (r.content_type==="useful_vocab"?"Useful Vocabulary":r.content_type==="phrasal_verb"?"Phrasal Verb":"Idiom")
+    : "Useful phrase patterns";
+
+  const phraseHtml='<div class="panel"><h3>'+esc(languageHeading)+'</h3><div class="phrases">'+
+    (r.key_phrases||[]).map(x=>'<div class="phrase"><div class="phrase-main"><div class="phrase-type">'+esc((x.item_type||"useful_phrase").replaceAll("_"," "))+'</div><strong>'+esc(x.phrase_frame)+'</strong>'+rowActions(x.phrase_frame,"marin",true)+'</div>'+
+      '<div>'+esc(x.meaning)+'<em>'+esc(x.use_when)+'</em><div class="example-wrap"><div class="example-label">Another workplace example</div>'+contentRow('<div class="example-line">'+esc(x.another_workplace_example)+'</div>',x.another_workplace_example,"cedar",true)+'</div></div></div>').join("")+
+    '</div></div>';
+
+  output.innerHTML=
+    '<div class="result-head"><div><div class="eyebrow">'+esc(r.content_type_label)+'</div><h2>'+esc(r.title)+'</h2><div class="result-meta">'+esc(r.level_label)+' · '+esc(r.job_function)+' · '+esc(r.context)+'</div></div>'+
+    '<div class="actions"><button class="action" id="editBtn">Edit text</button><button class="action primary" id="copyBtn">Copy full script</button></div></div>'+
+    '<div class="panel"><h3>Hook</h3>'+contentRow('<div class="hook">'+esc(r.hook)+'</div>',r.hook,"marin",true)+'</div>'+
+    '<div class="panel"><h3>Situation</h3>'+contentRow('<div class="situation">'+esc(r.situation)+'</div>',r.situation,"marin",true)+'</div>'+
+    scriptHtml+miniHtml+interviewHtml+mistakesHtml+phraseHtml+
+    '<div class="panel"><h3>Practice prompt</h3>'+contentRow('<div class="practice">'+esc(r.practice_prompt)+'</div>',r.practice_prompt,"marin",true)+'</div>'+
+    '<div class="creator-note"><strong>Creator note:</strong> '+contentRow('<span>'+esc(r.creator_note_vi)+'</span>',r.creator_note_vi,"marin",false)+'</div>'+
+    '<div class="audio-disclosure">AI-generated voice for content production · Native conversational speed · Accent is selected above</div>'+
+    '<div class="edit-area" id="editArea"><textarea id="editText"></textarea><div class="actions" style="margin-top:7px"><button class="action" id="closeEdit">Close</button><button class="action primary" id="copyEdited">Copy edited text</button></div></div>';
+
+  document.getElementById("copyBtn").onclick=e=>copyText(fullText(r),e.currentTarget);
+  document.getElementById("editBtn").onclick=()=>{
+    const area=document.getElementById("editArea");
+    area.style.display=area.style.display==="block"?"none":"block";
+    document.getElementById("editText").value=fullText(r);
+  };
+  document.getElementById("closeEdit").onclick=()=>document.getElementById("editArea").style.display="none";
+  document.getElementById("copyEdited").onclick=e=>copyText(document.getElementById("editText").value,e.currentTarget);
+  bindActionButtons();
 }
+
 async function generate(){
- const brief={job_function:document.getElementById("jobFunction").value.trim(),context:document.getElementById("context").value.trim(),communication_goal:document.getElementById("goal").value.trim(),level:document.getElementById("level").value,content_type:state.contentType};
- if(!brief.job_function||!brief.context||!brief.communication_goal){renderError("Please complete Job function, Context and Communication goal.");return;}
- generateBtn.disabled=true;renderLoading();
- try{const response=await fetch("/.netlify/functions/generate",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(brief)});const data=await response.json().catch(()=>({}));if(!response.ok)throw new Error(data.error||"Could not generate content.");renderResult(data);}catch(err){renderError(err.message);}finally{generateBtn.disabled=false;}
+  const brief={
+    job_function:document.getElementById("jobFunction").value.trim(),
+    context:document.getElementById("context").value.trim(),
+    communication_goal:document.getElementById("goal").value.trim(),
+    level:document.getElementById("level").value,
+    content_type:state.contentType
+  };
+
+  if(!brief.job_function||!brief.context||!brief.communication_goal){
+    renderError("Please complete Job function, Context and Communication goal. / Vui lòng nhập đủ 3 ô.");
+    return;
+  }
+
+  generateBtn.disabled=true;
+  renderLoading();
+  try{
+    const response=await fetch("/.netlify/functions/generate",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify(brief)
+    });
+    const data=await response.json().catch(()=>({}));
+    if(!response.ok)throw new Error(data.error||"Could not generate content.");
+    renderResult(data);
+  }catch(err){
+    renderError(err.message);
+  }finally{
+    generateBtn.disabled=false;
+  }
 }
+
 generateBtn.addEventListener("click",generate);
 </script>
 </body></html>
