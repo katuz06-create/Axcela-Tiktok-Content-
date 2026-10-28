@@ -19,8 +19,13 @@ export default async function handler(req) {
     const body = await req.json();
     const text = String(body.text || "").trim();
     const accent = String(body.accent || "american").toLowerCase();
-    const requestedVoice = String(body.voice || "marin").toLowerCase();
-    const voice = allowedVoices.has(requestedVoice) ? requestedVoice : "marin";
+    const gender = String(body.gender || "female").toLowerCase();
+
+    const genderVoiceMap = {
+      female: "marin",
+      male: "cedar"
+    };
+    const voice = genderVoiceMap[gender] || "marin";
 
     if (!text) {
       return Response.json({ error: "Text is required." }, { status: 400 });
@@ -39,6 +44,7 @@ You are producing a short English voice clip for Axcela workplace-English conten
 READING RULES — STRICT
 - Read EXACTLY the text supplied by the user. Do not add, remove, explain, answer, paraphrase, introduce, or conclude.
 - ${accentInstruction}
+- Use a natural ${gender === "male" ? "male" : "female"} adult voice.
 - Speak at a NORMAL NATIVE CONVERSATIONAL PACE.
 - Do NOT slow down because the audience is learning English.
 - Keep natural linking, reductions, sentence stress, rhythm, and intonation.
