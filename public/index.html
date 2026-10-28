@@ -27,6 +27,7 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 .icon-btn.busy{opacity:.55;cursor:wait}
 .icon-btn.playing{border-color:#8FCDB1;color:var(--green);background:var(--mint)}
 .icon-btn svg{width:13px;height:13px}
+.translation-vi{font-size:10.5px;color:#758299;font-style:italic;line-height:1.4;margin-top:4px}
 .audio-disclosure{margin-top:8px;font-size:9px;line-height:1.35;color:#8793A6;text-align:center}
 .micro-note{font-size:9.5px;color:#8490A3;line-height:1.35;margin-top:5px}
 .mini-situation{border:1px solid #E2E9F0;border-radius:14px;padding:10px;margin-top:8px;background:#FBFCFE}
@@ -61,7 +62,9 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 
 <div class="field"><label>Level / Trình độ <span>Mapped to CEFR</span></label><select id="level"><option value="Elementary">Elementary (A1)</option><option value="Pre-Intermediate">Pre-Intermediate (A2)</option><option value="Intermediate" selected>Intermediate (B1)</option><option value="Upper-Intermediate">Upper-Intermediate (B2)</option><option value="Advanced">Advanced (C1)</option></select></div>
 
-<div class="field"><label>Voice accent / Giọng đọc <span>Native conversational pace</span></label><select id="accent"><option value="american" selected>American English</option><option value="british">British English</option></select><div class="micro-note">Level changes language complexity, not speaking speed. Audio always uses normal native conversational pace.</div></div>
+<div class="field"><label>Voice accent / Giọng đọc <span>Native conversational pace</span></label><select id="accent"><option value="american" selected>American English</option><option value="british">British English</option></select></div>
+
+<div class="field"><label>Voice gender / Giọng nam nữ <span>Used for Listen & Download</span></label><select id="voiceGender"><option value="female" selected>Female voice</option><option value="male">Male voice</option></select><div class="micro-note">Level changes language complexity, not speaking speed. Audio always uses normal native conversational pace.</div></div>
 
 <div class="field"><label>Content type / Dạng nội dung</label><div class="type-grid">
 <button class="type-btn active" data-type="one_to_one">1-to-1 Conversation<small>Two-person practical exchange</small></button>
@@ -143,20 +146,22 @@ async function copyText(text,button){
   }catch(e){alert("Copy failed. Please select the text manually.");}
 }
 
-function audioKey(text,voice){
+function audioKey(text){
   const accent=document.getElementById("accent")?.value||"american";
-  return accent+"|"+voice+"|"+text;
+  const gender=document.getElementById("voiceGender")?.value||"female";
+  return accent+"|"+gender+"|"+text;
 }
 async function getAudio(text,voice,button){
-  const key=audioKey(text,voice);
+  const key=audioKey(text);
   if(audioCache.has(key)) return audioCache.get(key);
 
   if(button)button.classList.add("busy");
   const accent=document.getElementById("accent")?.value||"american";
+  const gender=document.getElementById("voiceGender")?.value||"female";
   const response=await fetch("/.netlify/functions/voice",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
-    body:JSON.stringify({text,voice,accent})
+    body:JSON.stringify({text,accent,gender})
   });
   if(!response.ok){
     const data=await response.json().catch(()=>({}));
@@ -247,7 +252,7 @@ function renderResult(r){
   let scriptHtml="";
   if(r.dialogue_lines?.length){
     scriptHtml='<div class="panel"><h3>Script</h3><div class="dialogue">'+
-      r.dialogue_lines.map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
+      r.dialogue_lines.map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div><div class="translation-vi">'+esc(x.translation_vi||"")+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
       '</div></div>';
   }
 
@@ -255,16 +260,16 @@ function renderResult(r){
   if(r.mini_situations?.length){
     miniHtml='<div class="panel"><h3>Two workplace situations</h3>'+
       r.mini_situations.map((s,i)=>'<div class="mini-situation"><h4>Situation '+(i+1)+' — '+esc(s.title)+'</h4><div class="mini-context">'+esc(s.situation)+'</div><div class="dialogue">'+
-        (s.dialogue_lines||[]).map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
+        (s.dialogue_lines||[]).map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div><div class="translation-vi">'+esc(x.translation_vi||"")+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
       '</div></div>').join("")+'</div>';
   }
 
   let interviewHtml="";
   if(r.interview_question){
     interviewHtml='<div class="panel"><h3>Interview format</h3>'+
-      '<div class="interview-box"><strong>Question</strong>'+contentRow('<div>'+esc(r.interview_question)+'</div>',r.interview_question,"cedar",true)+'</div>'+
-      '<div class="interview-box"><strong>Weak answer</strong>'+contentRow('<div>'+esc(r.weak_answer)+'</div>',r.weak_answer,"marin",true)+'</div>'+
-      '<div class="interview-box"><strong>Better answer</strong>'+contentRow('<div>'+highlight(r.better_answer,phrases)+'</div>',r.better_answer,"marin",true)+'</div>'+
+      '<div class="interview-box"><strong>Question</strong>'+contentRow('<div>'+esc(r.interview_question)+'</div><div class="translation-vi">'+esc(r.interview_question_vi||"")+'</div>',r.interview_question,"cedar",true)+'</div>'+
+      '<div class="interview-box"><strong>Weak answer</strong>'+contentRow('<div>'+esc(r.weak_answer)+'</div><div class="translation-vi">'+esc(r.weak_answer_vi||"")+'</div>',r.weak_answer,"marin",true)+'</div>'+
+      '<div class="interview-box"><strong>Better answer</strong>'+contentRow('<div>'+highlight(r.better_answer,phrases)+'</div><div class="translation-vi">'+esc(r.better_answer_vi||"")+'</div>',r.better_answer,"marin",true)+'</div>'+
       '</div>';
   }
 
@@ -272,10 +277,10 @@ function renderResult(r){
   if(r.mistakes?.length){
     mistakesHtml='<div class="panel"><h3>Do & Don’t</h3>'+
       r.mistakes.map(x=>'<div class="mistake">'+
-        contentRow('<div class="bad"><strong>DON’T:</strong> '+esc(x.dont)+'</div>',x.dont,"marin",true)+
+        contentRow('<div class="bad"><strong>DON’T:</strong> '+esc(x.dont)+'</div><div class="translation-vi">'+esc(x.dont_vi||"")+'</div>',x.dont,"marin",true)+
         '<div class="reason">'+esc(x.why)+'</div>'+
-        contentRow('<div class="good"><strong>DO:</strong> '+highlight(x.do,phrases)+'</div>',x.do,"marin",true)+
-        (x.alternatives?.length?'<div class="alt-list">'+x.alternatives.map(a=>'<div class="alt-item"><span>'+esc(a)+'</span>'+rowActions(a,"cedar",true)+'</div>').join("")+'</div>':'')+
+        contentRow('<div class="good"><strong>DO:</strong> '+highlight(x.do,phrases)+'</div><div class="translation-vi">'+esc(x.do_vi||"")+'</div>',x.do,"marin",true)+
+        (x.alternatives?.length?'<div class="alt-list">'+x.alternatives.map((a,i)=>'<div class="alt-item"><span>'+esc(a)+'<div class="translation-vi">'+esc((x.alternatives_vi||[])[i]||"")+'</div></span>'+rowActions(a,"cedar",true)+'</div>').join("")+'</div>':'')+
       '</div>').join("")+'</div>';
   }
 
@@ -285,7 +290,7 @@ function renderResult(r){
 
   const phraseHtml='<div class="panel"><h3>'+esc(languageHeading)+'</h3><div class="phrases">'+
     (r.key_phrases||[]).map(x=>'<div class="phrase"><div class="phrase-main"><div class="phrase-type">'+esc((x.item_type||"useful_phrase").replaceAll("_"," "))+'</div><strong>'+esc(x.phrase_frame)+'</strong>'+rowActions(x.phrase_frame,"marin",true)+'</div>'+
-      '<div>'+esc(x.meaning)+'<em>'+esc(x.use_when)+'</em><div class="example-wrap"><div class="example-label">Another workplace example</div>'+contentRow('<div class="example-line">'+esc(x.another_workplace_example)+'</div>',x.another_workplace_example,"cedar",true)+'</div></div></div>').join("")+
+      '<div>'+esc(x.meaning)+'<em>'+esc(x.use_when)+'</em><div class="example-wrap"><div class="example-label">Another workplace example</div>'+contentRow('<div class="example-line">'+esc(x.another_workplace_example)+'</div><div class="translation-vi">'+esc(x.another_workplace_example_vi||"")+'</div>',x.another_workplace_example,"cedar",true)+'</div></div></div>').join("")+
     '</div></div>';
 
   output.innerHTML=
@@ -296,7 +301,7 @@ function renderResult(r){
     scriptHtml+miniHtml+interviewHtml+mistakesHtml+phraseHtml+
     '<div class="panel"><h3>Practice prompt</h3>'+contentRow('<div class="practice">'+esc(r.practice_prompt)+'</div>',r.practice_prompt,"marin",true)+'</div>'+
     '<div class="creator-note"><strong>Creator note:</strong> '+contentRow('<span>'+esc(r.creator_note_vi)+'</span>',r.creator_note_vi,"marin",false)+'</div>'+
-    '<div class="audio-disclosure">AI-generated voice for content production · Native conversational speed · Accent is selected above</div>'+
+    '<div class="audio-disclosure">AI-generated voice for content production · Native conversational speed · Accent and Male/Female voice are selected above</div>'+
     '<div class="edit-area" id="editArea"><textarea id="editText"></textarea><div class="actions" style="margin-top:7px"><button class="action" id="closeEdit">Close</button><button class="action primary" id="copyEdited">Copy edited text</button></div></div>';
 
   document.getElementById("copyBtn").onclick=e=>copyText(fullText(r),e.currentTarget);
