@@ -42,6 +42,17 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 
 @media(max-width:880px){body{padding:0}.topbar{padding:14px 14px 0}.layout{display:block}.builder{position:static;border-radius:0}.output{border-radius:0;box-shadow:none}}
 .speaker-heading{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.speaker-voice{width:auto;min-width:82px;margin:0;padding:4px 7px;border-radius:8px;font-size:10px;background:#fff;color:#182D4C;border:1px solid #CBD8E5;letter-spacing:normal;text-transform:none;font-weight:650}
+
+/* V1.6 opt-in practice */
+.practice-switch{display:flex;align-items:center;justify-content:space-between;gap:14px;border:1px solid var(--line);background:#F8FBFA;border-radius:15px;padding:12px 14px;margin-bottom:12px}
+.practice-switch strong{display:block;font-size:12px}.practice-switch small{display:block;font-size:10px;color:var(--muted);margin-top:4px}
+.practice-toggle{width:44px;height:25px;border:0;border-radius:99px;background:#AFBAC8;padding:3px;flex-shrink:0;transition:background .15s}
+.practice-toggle::before{content:"";display:block;background:white;width:19px;height:19px;border-radius:50%;transition:transform .15s}
+.practice-toggle[aria-checked="true"]{background:var(--green)}.practice-toggle[aria-checked="true"]::before{transform:translateX(19px)}
+.practice-record{width:29px;height:27px;border:1px solid #80C4A3;border-radius:8px;background:#EBF7F0;color:#00754A;display:inline-grid;place-items:center;padding:0}
+.practice-record.recording{background:#FDEDEC;color:#B42318;border-color:#D98B85}
+.practice-record svg{width:14px;height:14px}.practice-feedback{margin-top:9px;background:#F5F9FC;border:1px solid #DCE7EF;border-radius:10px;padding:10px 11px;color:#334862;font-size:11px;line-height:1.55}
+.practice-feedback strong{font-size:11px}.practice-feedback audio{display:block;width:100%;height:34px;margin:7px 0}.practice-feedback .score{font-weight:900;color:var(--green);font-size:17px}.practice-status{font-size:10px;color:#66758D}
 </style>
 </head>
 <body>
@@ -85,7 +96,7 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 </div></div>
 
 <script>
-const state={contentType:"one_to_one",lastResult:null,speakerGenders:{}};
+const state={practiceMode:false,contentType:"one_to_one",lastResult:null,speakerGenders:{}};
 const output=document.getElementById("output"),generateBtn=document.getElementById("generateBtn");
 const audioCache=new Map();
 let currentAudio=null;
@@ -128,11 +139,13 @@ function playButton(text,voice="auto"){
 function downloadButton(text,voice="auto"){
   return '<button class="icon-btn" data-download="'+encodeURIComponent(text||"")+'" data-voice="'+esc(voice)+'" aria-label="Download audio" title="Download audio">'+iconDownload()+'</button>';
 }
+function micIcon(){return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"></rect><path d="M5 10a7 7 0 0 0 14 0M12 17v5m-4 0h8"></path></svg>';}
+function recordButton(text){return '<button class="practice-record" data-record="'+encodeURIComponent(text||"")+'" type="button" title="Record this sentence" aria-label="Record this sentence">'+micIcon()+'</button>';}
 function rowActions(text,voice="auto",audio=true){
-  return '<div class="inline-actions">'+copyButton(text)+(audio?playButton(text,voice)+downloadButton(text,voice):'')+'</div>';
+  return '<div class="inline-actions">'+copyButton(text)+(audio?playButton(text,voice)+downloadButton(text,voice)+(state.practiceMode?recordButton(text):''):'')+'</div>';
 }
 function contentRow(contentHtml,text,voice="auto",audio=true,extraClass=""){
-  return '<div class="copy-row '+extraClass+'"><div class="copy-content">'+contentHtml+'</div>'+rowActions(text,voice,audio)+'</div>';
+  return '<div class="practice-item '+extraClass+'"><div class="copy-row"><div class="copy-content">'+contentHtml+'</div>'+rowActions(text,voice,audio)+'</div></div>';
 }
 
 async function copyText(text,button){
@@ -309,6 +322,7 @@ function renderResult(r){
     '</div></div>';
 
   output.innerHTML=
+    '<div class="practice-switch"><div><strong>Practice Mode <span style="font-weight:600;color:#6B7890">· Experimental</span></strong><small>'+ (state.practiceMode?'Record each line and receive feedback.':'Off — original Content Engine experience.') +'</small></div><button id="practiceToggle" class="practice-toggle" type="button" role="switch" aria-checked="'+String(state.practiceMode)+'" aria-label="Toggle Practice Mode"></button></div>'+
     '<div class="result-head"><div><div class="eyebrow">'+esc(r.content_type_label)+'</div><h2>'+esc(r.title)+'</h2><div class="result-meta">'+esc(r.level_label)+' · '+esc(r.job_function)+' · '+esc(r.context)+'</div></div>'+
     '<div class="actions"><button class="action" id="editBtn">Edit text</button><button class="action primary" id="copyBtn">Copy full script</button></div></div>'+
     '<div class="panel"><h3>Hook</h3>'+contentRow('<div class="hook">'+esc(r.hook)+'</div>',r.hook,"marin",true)+'</div>'+
@@ -328,6 +342,11 @@ function renderResult(r){
   document.getElementById("closeEdit").onclick=()=>document.getElementById("editArea").style.display="none";
   document.getElementById("copyEdited").onclick=e=>copyText(document.getElementById("editText").value,e.currentTarget);
   bindActionButtons();
+  document.getElementById("practiceToggle").onclick=()=>{
+    if(activeRecorder){activeRecorder.stop();activeRecorder=null;}
+    state.practiceMode=!state.practiceMode;
+    renderResult(state.lastResult);
+  };
   output.querySelectorAll(".speaker-voice").forEach(select=>select.addEventListener("change",()=>{
     state.speakerGenders[decodeURIComponent(select.dataset.speaker)]=select.value;
     if(currentAudio){currentAudio.pause();currentAudio=null;}
@@ -335,6 +354,74 @@ function renderResult(r){
   }));
 }
 
+let activeRecorder=null;
+let recordSession=null;
+async function recordSentence(btn){
+  if(!state.practiceMode)return;
+  if(activeRecorder){
+    if(recordSession?.button===btn){activeRecorder.stop();return;}
+    alert("Please stop the current recording first.");return;
+  }
+  if(!navigator.mediaDevices?.getUserMedia || !window.MediaRecorder){alert("Microphone recording is not supported in this browser. Please use recent Safari or Chrome on HTTPS.");return;}
+  let stream;
+  try{stream=await navigator.mediaDevices.getUserMedia({audio:true});}
+  catch(e){alert("Microphone permission is required to practice. Please allow microphone access in your browser.");return;}
+  const type=["audio/webm;codecs=opus","audio/mp4","audio/webm"].find(x=>MediaRecorder.isTypeSupported(x))||"";
+  const recorder=new MediaRecorder(stream,type?{mimeType:type}:undefined);
+  const chunks=[],text=decodeURIComponent(btn.dataset.record||"");
+  const item=btn.closest(".practice-item")||btn.parentElement;
+  const old=item.querySelector(".practice-feedback");if(old)old.remove();
+  const feedback=document.createElement("div");feedback.className="practice-feedback";feedback.textContent="Recording… Click the microphone again to stop (maximum 25 seconds).";item.appendChild(feedback);
+  recordSession={button:btn,item,feedback};activeRecorder=recorder;btn.classList.add("recording");btn.title="Stop recording";
+  const cutoff=setTimeout(()=>{if(recorder.state==="recording")recorder.stop();},25000);
+  recorder.ondataavailable=e=>{if(e.data.size)chunks.push(e.data);};
+  recorder.onstop=async()=>{
+    clearTimeout(cutoff);stream.getTracks().forEach(t=>t.stop());activeRecorder=null;recordSession=null;
+    btn.classList.remove("recording");btn.title="Record again";
+    if(!chunks.length){feedback.textContent="No audio was captured. Please try again.";return;}
+    const blob=new Blob(chunks,{type:recorder.mimeType||"audio/webm"});
+    const localUrl=URL.createObjectURL(blob);
+    feedback.innerHTML='<strong>Your recording</strong><audio controls src="'+esc(localUrl)+'"></audio><div class="practice-status">Checking your reading…</div>';
+    try{
+      const wav=await recordingToWav(blob);
+      const base64=await blobBase64(wav);
+      const response=await fetch("/.netlify/functions/pronounce",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,audio:base64,accent:document.getElementById("accent")?.value||"american"})});
+      const result=await response.json();if(!response.ok)throw new Error(result.error||"Assessment unavailable.");
+      const audio=feedback.querySelector("audio");
+      const info=document.createElement("div");
+      let html='';
+      if(result.mode==="pronunciation"){
+        html='<div><span class="score">'+esc(result.score)+'/100</span> <strong>Pronunciation (beta)</strong></div>'+
+        '<div>Accuracy: '+esc(result.accuracy)+' · Fluency: '+esc(result.fluency)+'</div>';
+      }else{
+        html='<div><span class="score">'+esc(result.score)+'%</span> <strong>Words recognized (not pronunciation score)</strong></div>';
+      }
+      html+='<div><strong>AI heard:</strong> '+esc(result.transcript||"(no clear speech detected)")+'</div>';
+      if(result.focus?.length)html+='<div><strong>Check these words:</strong> '+esc(result.focus.join(", "))+'</div>';
+      html+='<div>'+esc(result.note||"")+'</div>';
+      info.innerHTML=html;feedback.appendChild(info);
+    }catch(err){const status=feedback.querySelector(".practice-status");if(status)status.textContent="Could not assess: "+err.message;}
+    finally{const status=feedback.querySelector(".practice-status");if(status&&status.textContent.startsWith("Checking"))status.remove();}
+  };
+  recorder.start();
+}
+async function blobBase64(blob){const buffer=await blob.arrayBuffer();const b=new Uint8Array(buffer);let result="";for(let i=0;i<b.length;i+=32768)result+=String.fromCharCode(...b.subarray(i,i+32768));return btoa(result);}
+async function recordingToWav(blob){
+  const ctx=new (window.AudioContext||window.webkitAudioContext)();
+  try{
+    const raw=await blob.arrayBuffer(),decoded=await ctx.decodeAudioData(raw);
+    const length=Math.ceil(decoded.duration*16000);
+    if(!length||length>16000*30)throw new Error("Recording must be under 30 seconds.");
+    const offline=new OfflineAudioContext(1,length,16000);
+    const source=offline.createBufferSource();source.buffer=decoded;source.connect(offline.destination);source.start();
+    const pcm=(await offline.startRendering()).getChannelData(0);
+    const buf=new ArrayBuffer(44+pcm.length*2),view=new DataView(buf);
+    const write=(pos,str)=>{for(let i=0;i<str.length;i++)view.setUint8(pos+i,str.charCodeAt(i));};
+    write(0,"RIFF");view.setUint32(4,36+pcm.length*2,true);write(8,"WAVE");write(12,"fmt ");view.setUint32(16,16,true);view.setUint16(20,1,true);view.setUint16(22,1,true);view.setUint32(24,16000,true);view.setUint32(28,32000,true);view.setUint16(32,2,true);view.setUint16(34,16,true);write(36,"data");view.setUint32(40,pcm.length*2,true);
+    for(let i=0;i<pcm.length;i++){const v=Math.max(-1,Math.min(1,pcm[i]));view.setInt16(44+2*i,v<0?v*32768:v*32767,true);}
+    return new Blob([buf],{type:"audio/wav"});
+  }finally{await ctx.close();}
+}
 async function generate(){
   const brief={
     job_function:document.getElementById("jobFunction").value.trim(),
@@ -360,6 +447,7 @@ async function generate(){
     const data=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(data.error||"Could not generate content.");
     state.speakerGenders={};
+    if(activeRecorder){activeRecorder.stop();activeRecorder=null;}
     renderResult(data);
   }catch(err){
     renderError(err.message);
