@@ -41,6 +41,7 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 .example-line{font-size:10.5px;color:#3D5272;line-height:1.4}
 
 @media(max-width:880px){body{padding:0}.topbar{padding:14px 14px 0}.layout{display:block}.builder{position:static;border-radius:0}.output{border-radius:0;box-shadow:none}}
+.speaker-heading{display:flex;align-items:center;gap:9px;flex-wrap:wrap}.speaker-voice{width:auto;min-width:82px;margin:0;padding:4px 7px;border-radius:8px;font-size:10px;background:#fff;color:#182D4C;border:1px solid #CBD8E5;letter-spacing:normal;text-transform:none;font-weight:650}
 </style>
 </head>
 <body>
@@ -64,7 +65,7 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 
 <div class="field"><label>Voice accent / Giọng đọc <span>Native conversational pace</span></label><select id="accent"><option value="american" selected>American English</option><option value="british">British English</option></select></div>
 
-<div class="field"><label>Voice gender / Giọng nam nữ <span>Used for Listen & Download</span></label><select id="voiceGender"><option value="female" selected>Female voice</option><option value="male">Male voice</option></select><div class="micro-note">Level changes language complexity, not speaking speed. Audio always uses normal native conversational pace.</div></div>
+<div class="field"><div class="micro-note">Voice gender is selected beside each speaker in the generated dialogue. Other audio uses a neutral default female voice. Level does not affect native speaking speed.</div></div>
 
 <div class="field"><label>Content type / Dạng nội dung</label><div class="type-grid">
 <button class="type-btn active" data-type="one_to_one">1-to-1 Conversation<small>Two-person practical exchange</small></button>
@@ -84,7 +85,7 @@ input,select,textarea{width:100%;border:1px solid #CBD8E5;background:#fff;color:
 </div></div>
 
 <script>
-const state={contentType:"one_to_one",lastResult:null};
+const state={contentType:"one_to_one",lastResult:null,speakerGenders:{}};
 const output=document.getElementById("output"),generateBtn=document.getElementById("generateBtn");
 const audioCache=new Map();
 let currentAudio=null;
@@ -121,16 +122,16 @@ function iconDownload(){
 function copyButton(text,label="Copy"){
   return '<button class="icon-btn" data-copy="'+encodeURIComponent(text||"")+'" aria-label="'+esc(label)+'" title="'+esc(label)+'">'+iconCopy()+'</button>';
 }
-function playButton(text,voice="marin"){
+function playButton(text,voice="auto"){
   return '<button class="icon-btn" data-play="'+encodeURIComponent(text||"")+'" data-voice="'+esc(voice)+'" aria-label="Listen" title="Listen">'+iconPlay()+'</button>';
 }
-function downloadButton(text,voice="marin"){
+function downloadButton(text,voice="auto"){
   return '<button class="icon-btn" data-download="'+encodeURIComponent(text||"")+'" data-voice="'+esc(voice)+'" aria-label="Download audio" title="Download audio">'+iconDownload()+'</button>';
 }
-function rowActions(text,voice="marin",audio=true){
+function rowActions(text,voice="auto",audio=true){
   return '<div class="inline-actions">'+copyButton(text)+(audio?playButton(text,voice)+downloadButton(text,voice):'')+'</div>';
 }
-function contentRow(contentHtml,text,voice="marin",audio=true,extraClass=""){
+function contentRow(contentHtml,text,voice="auto",audio=true,extraClass=""){
   return '<div class="copy-row '+extraClass+'"><div class="copy-content">'+contentHtml+'</div>'+rowActions(text,voice,audio)+'</div>';
 }
 
@@ -146,18 +147,23 @@ async function copyText(text,button){
   }catch(e){alert("Copy failed. Please select the text manually.");}
 }
 
-function audioKey(text){
+function resolveGender(voice){
+  // Speaker voices override the default voice without changing other content types.
+  if(voice==="cedar"||voice==="onyx"||voice==="echo")return "male";
+  if(voice==="marin"||voice==="sage"||voice==="coral")return "female";
+  return "female";
+}
+function audioKey(text,voice){
   const accent=document.getElementById("accent")?.value||"american";
-  const gender=document.getElementById("voiceGender")?.value||"female";
-  return accent+"|"+gender+"|"+text;
+  return "v15|"+accent+"|"+resolveGender(voice)+"|"+text;
 }
 async function getAudio(text,voice,button){
-  const key=audioKey(text);
+  const key=audioKey(text,voice);
   if(audioCache.has(key)) return audioCache.get(key);
 
   if(button)button.classList.add("busy");
   const accent=document.getElementById("accent")?.value||"american";
-  const gender=document.getElementById("voiceGender")?.value||"female";
+  const gender=resolveGender(voice);
   const response=await fetch("/.netlify/functions/voice",{
     method:"POST",
     headers:{"Content-Type":"application/json"},
@@ -203,8 +209,8 @@ async function downloadAudio(text,voice,button){
 }
 function bindActionButtons(){
   output.querySelectorAll("[data-copy]").forEach(btn=>btn.addEventListener("click",()=>copyText(decodeURIComponent(btn.dataset.copy||""),btn)));
-  output.querySelectorAll("[data-play]").forEach(btn=>btn.addEventListener("click",()=>playAudio(decodeURIComponent(btn.dataset.play||""),btn.dataset.voice||"marin",btn)));
-  output.querySelectorAll("[data-download]").forEach(btn=>btn.addEventListener("click",()=>downloadAudio(decodeURIComponent(btn.dataset.download||""),btn.dataset.voice||"marin",btn)));
+  output.querySelectorAll("[data-play]").forEach(btn=>btn.addEventListener("click",()=>playAudio(decodeURIComponent(btn.dataset.play||""),btn.dataset.voice||"auto",btn)));
+  output.querySelectorAll("[data-download]").forEach(btn=>btn.addEventListener("click",()=>downloadAudio(decodeURIComponent(btn.dataset.download||""),btn.dataset.voice||"auto",btn)));
 }
 
 function fullText(r){
@@ -241,18 +247,27 @@ function fullText(r){
 function renderResult(r){
   state.lastResult=r;
   const phrases=(r.key_phrases||[]).map(x=>x.source_phrase).filter(Boolean);
-  const speakerVoices=new Map();
-  const voices=["marin","cedar","sage"];
-  function voiceFor(speaker){
-    const key=String(speaker||"speaker");
-    if(!speakerVoices.has(key))speakerVoices.set(key,voices[speakerVoices.size%voices.length]);
-    return speakerVoices.get(key);
+  const speakerOrder=[];
+  function registerSpeaker(speaker){
+    const key=String(speaker||"Speaker");
+    if(!speakerOrder.includes(key))speakerOrder.push(key);
+    if(!Object.prototype.hasOwnProperty.call(state.speakerGenders,key)){
+      state.speakerGenders[key]=speakerOrder.indexOf(key)%2===0?"female":"male";
+    }
+    return key;
+  }
+  (r.dialogue_lines||[]).forEach(x=>registerSpeaker(x.speaker));
+  (r.mini_situations||[]).forEach(item=>(item.dialogue_lines||[]).forEach(x=>registerSpeaker(x.speaker)));
+  function voiceFor(speaker){return state.speakerGenders[registerSpeaker(speaker)]==="male"?"cedar":"marin";}
+  function speakerControl(speaker){
+    const key=registerSpeaker(speaker),gender=state.speakerGenders[key];
+    return '<select class="speaker-voice" data-speaker="'+encodeURIComponent(key)+'" aria-label="Gender for '+esc(key)+'"><option value="female"'+(gender==="female"?' selected':'')+'>Female</option><option value="male"'+(gender==="male"?' selected':'')+'>Male</option></select>';
   }
 
   let scriptHtml="";
   if(r.dialogue_lines?.length){
     scriptHtml='<div class="panel"><h3>Script</h3><div class="dialogue">'+
-      r.dialogue_lines.map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div><div class="translation-vi">'+esc(x.translation_vi||"")+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
+      r.dialogue_lines.map(x=>'<div class="line"><div class="speaker speaker-heading">'+esc(x.speaker)+speakerControl(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div><div class="translation-vi">'+esc(x.translation_vi||"")+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
       '</div></div>';
   }
 
@@ -260,7 +275,7 @@ function renderResult(r){
   if(r.mini_situations?.length){
     miniHtml='<div class="panel"><h3>Two workplace situations</h3>'+
       r.mini_situations.map((s,i)=>'<div class="mini-situation"><h4>Situation '+(i+1)+' — '+esc(s.title)+'</h4><div class="mini-context">'+esc(s.situation)+'</div><div class="dialogue">'+
-        (s.dialogue_lines||[]).map(x=>'<div class="line"><div class="speaker">'+esc(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div><div class="translation-vi">'+esc(x.translation_vi||"")+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
+        (s.dialogue_lines||[]).map(x=>'<div class="line"><div class="speaker speaker-heading">'+esc(x.speaker)+speakerControl(x.speaker)+'</div>'+contentRow('<div class="line-text">'+highlight(x.text,phrases)+'</div><div class="translation-vi">'+esc(x.translation_vi||"")+'</div>',x.text,voiceFor(x.speaker),true)+'</div>').join("")+
       '</div></div>').join("")+'</div>';
   }
 
@@ -301,7 +316,7 @@ function renderResult(r){
     scriptHtml+miniHtml+interviewHtml+mistakesHtml+phraseHtml+
     '<div class="panel"><h3>Practice prompt</h3>'+contentRow('<div class="practice">'+esc(r.practice_prompt)+'</div>',r.practice_prompt,"marin",true)+'</div>'+
     '<div class="creator-note"><strong>Creator note:</strong> '+contentRow('<span>'+esc(r.creator_note_vi)+'</span>',r.creator_note_vi,"marin",false)+'</div>'+
-    '<div class="audio-disclosure">AI-generated voice for content production · Native conversational speed · Accent and Male/Female voice are selected above</div>'+
+    '<div class="audio-disclosure">AI-generated voice for content production · Native conversational speed · Choose Male/Female beside each speaker in dialogues</div>'+
     '<div class="edit-area" id="editArea"><textarea id="editText"></textarea><div class="actions" style="margin-top:7px"><button class="action" id="closeEdit">Close</button><button class="action primary" id="copyEdited">Copy edited text</button></div></div>';
 
   document.getElementById("copyBtn").onclick=e=>copyText(fullText(r),e.currentTarget);
@@ -313,6 +328,11 @@ function renderResult(r){
   document.getElementById("closeEdit").onclick=()=>document.getElementById("editArea").style.display="none";
   document.getElementById("copyEdited").onclick=e=>copyText(document.getElementById("editText").value,e.currentTarget);
   bindActionButtons();
+  output.querySelectorAll(".speaker-voice").forEach(select=>select.addEventListener("change",()=>{
+    state.speakerGenders[decodeURIComponent(select.dataset.speaker)]=select.value;
+    if(currentAudio){currentAudio.pause();currentAudio=null;}
+    renderResult(state.lastResult);
+  }));
 }
 
 async function generate(){
@@ -339,6 +359,7 @@ async function generate(){
     });
     const data=await response.json().catch(()=>({}));
     if(!response.ok)throw new Error(data.error||"Could not generate content.");
+    state.speakerGenders={};
     renderResult(data);
   }catch(err){
     renderError(err.message);
